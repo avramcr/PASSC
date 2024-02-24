@@ -98,7 +98,7 @@ public class TemperatureSensor implements Subject{
         this.locatie = locatie;
         this.dataRevizuire = dataRevizuire;
         this.metrologicalPrecision = metrologicalPrecision;
-        this.temperatura = 0.0f; // Inițializează temperatura cu o valoare implicită, poate fi actualizată mai târziu
+        this.temperatura = 0.0f;
     }
 
 

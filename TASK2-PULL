@@ -1,0 +1,172 @@
+public interface Observer {
+    void update();
+}
+import java.util.*;
+public class TextDisplay implements Observer{
+    public List<TemperatureSensor> sensors=new ArrayList<>();
+
+    public float temperatura;
+    public void addSensor(TemperatureSensor sensor) {
+        if (!sensors.contains(sensor)) {
+            sensors.add(sensor);
+        }
+    }
+    public void update() {
+        for (TemperatureSensor sensor : sensors) {
+            float temperatura = sensor.getTemperatura();
+            String locatie = sensor.getLocatie();
+
+            String statusTemperatura;
+            if (temperatura < 20) {
+                statusTemperatura = "Cold";
+            } else {
+                statusTemperatura = "Warm";
+            }
+
+            System.out.println("Locatie: " + locatie + " - " + statusTemperatura);
+        }
+    }
+
+
+}
+import java.util.*;
+public class NumericDisplay implements Observer {
+    private List<TemperatureSensor> sensors = new ArrayList<>();
+
+    public void addSensor(TemperatureSensor sensor) {
+        if (!sensors.contains(sensor)) {
+            sensors.add(sensor);
+        }
+    }
+
+    @Override
+    public void update() {
+        for (TemperatureSensor sensor : sensors) {
+            String locatie = sensor.getLocatie();
+            String precizieMetrologica = sensor.getMetrologicalPrecision();
+            float temperatura = sensor.getTemperatura();
+            System.out.println("Locatie: " + locatie + ", Precizie Metrologica: " + precizieMetrologica + ", Temperatura: " + temperatura);
+        }
+    }
+}
+import java.util.*;
+public class AverageDisplay implements Observer{
+    public List<Float> temperaturi=new ArrayList<>();
+    private List<TemperatureSensor> sensors = new ArrayList<>();
+
+    public void addSensor(TemperatureSensor sensor) {
+        if (!sensors.contains(sensor)) {
+            sensors.add(sensor);
+        }
+    }
+    public void update() {
+        for (TemperatureSensor sensor : sensors) {
+            float temperatura = sensor.getTemperatura();
+            temperaturi.add(temperatura);
+            System.out.println("Sensor ID: " + sensor.getSensorId() + ", Locatie: " + sensor.getLocatie() + ", Data Revizuire: " + sensor.getDataRevizuire() + ", Precizie Metrologica: " + sensor.getMetrologicalPrecision() + ", Temperatura: " + temperatura );
+        }
+
+        if (temperaturi.size() > 0) {
+            float suma = 0;
+            for (int i = 0; i < temperaturi.size(); i++) {
+                suma += temperaturi.get(i);
+            }
+            float medie = suma / temperaturi.size();
+            System.out.println("Media temperaturii este: " + medie );
+        }
+    }
+
+
+
+}
+public interface Subject {
+    public void adaugare(Observer o);
+    public void stergere(Observer o);
+
+}
+import java.time.LocalDate;
+import java.util.*;
+public class TemperatureSensor implements Subject{
+    public List<Observer> observers=new ArrayList<>();
+    private int sensorId;
+    private String locatie;
+    private LocalDate dataRevizuire;
+    private float temperatura;
+    private String metrologicalPrecision;
+    public TemperatureSensor(int sensorId, String locatie, LocalDate dataRevizuire, String metrologicalPrecision) {
+        this.sensorId = sensorId;
+        this.locatie = locatie;
+        this.dataRevizuire = dataRevizuire;
+        this.metrologicalPrecision = metrologicalPrecision;
+        this.temperatura = 0.0f; // Inițializează temperatura cu o valoare implicită, poate fi actualizată mai târziu
+    }
+
+
+    public String getMetrologicalPrecision()
+    {
+        return metrologicalPrecision;
+    }
+
+    public float getTemperatura() {
+        return temperatura;
+    }
+    public LocalDate getDataRevizuire()
+    {
+        return dataRevizuire;
+    }
+    public String getLocatie()
+    {
+        return locatie;
+    }
+
+    public int getSensorId() {
+        return sensorId;
+    }
+
+    @Override
+    public void adaugare(Observer o) {
+        observers.add(o);
+    }
+
+    @Override
+    public void stergere(Observer o) {
+        observers.remove(o);
+    }
+
+
+    public void setTemperatura(float temperatura) {
+        this.temperatura = temperatura;
+    }
+}
+import java.time.LocalDate;
+public class Main {
+    public static void main(String[] args) {
+
+        TemperatureSensor sensor1 = new TemperatureSensor(1, "Bucuresti", LocalDate.now(), "+0.5");
+        TemperatureSensor sensor2 = new TemperatureSensor(2, "Viena", LocalDate.now(), "-0.5");
+
+
+        TextDisplay textDisplay = new TextDisplay();
+        NumericDisplay numericDisplay = new NumericDisplay();
+        AverageDisplay averageDisplay = new AverageDisplay();
+
+
+        textDisplay.addSensor(sensor1);
+        textDisplay.addSensor(sensor2);
+
+        numericDisplay.addSensor(sensor1);
+        numericDisplay.addSensor(sensor2);
+
+        averageDisplay.addSensor(sensor1);
+        averageDisplay.addSensor(sensor2);
+
+
+        sensor1.setTemperatura(22.5f);
+        sensor2.setTemperatura(18.0f);
+
+
+        textDisplay.update();
+        numericDisplay.update();
+        averageDisplay.update();
+    }
+}

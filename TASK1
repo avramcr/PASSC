@@ -1,0 +1,123 @@
+public interface Observer {
+    void update(float temperatura);
+}
+public class NumericDisplay implements Observer{
+    private float temperatura;
+
+    @Override
+    public void update(float temperatura) {
+        this.temperatura=temperatura;
+        afisareTemperatura();
+    }
+    private void afisareTemperatura() {
+        System.out.println("Temperatura este:" +this.temperatura);
+
+    }
+}
+public class TextDisplay implements Observer{
+    public float temperatura;
+
+    @Override
+    public void update(float temperatura) {
+        this.temperatura=temperatura;
+        afisareText();
+    }
+    private void afisareText()
+    {
+        if(this.temperatura<20)
+        {
+            System.out.println("Cold");
+        }
+        else {
+            System.out.println("Warm");
+             }
+        }
+
+}
+import java.util.*;
+public class AverageDisplay implements Observer{
+    public List<Float> temperaturi=new ArrayList<>();
+
+    @Override
+    public void update(float temperatura) {
+        temperaturi.add(temperatura);
+        afisareMedie();
+    }
+
+    private void afisareMedie()
+    {
+        if(temperaturi.size()>0)
+        {
+            float suma=0;
+            for(int i=0;i<temperaturi.size();i++)
+            {
+                suma=suma+temperaturi.get(i);
+            }
+            float medie=suma/temperaturi.size();
+            System.out.println("Media temperaturii este:" + medie);
+
+        }
+
+
+    }
+}
+public interface Subject {
+    public void adaugare(Observer o);
+    public void stergere(Observer o);
+    public void notificareObserver();
+}
+import java.util.*;
+public class TemperatureSensor implements Subject{
+    public List<Observer> observers=new ArrayList<>();
+    public float temperatura;
+
+    @Override
+    public void adaugare(Observer o) {
+        observers.add(o);
+    }
+
+    @Override
+    public void stergere(Observer o) {
+        observers.remove(o);
+    }
+
+    @Override
+    public void notificareObserver() {
+        for(Observer o:observers)
+            o.update(temperatura);
+    }
+
+    public void setTemperatura(float temperatura) {
+        this.temperatura = temperatura;
+        notificareObserver();
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        TemperatureSensor sensor = new TemperatureSensor();
+
+        NumericDisplay numericDisplay = new NumericDisplay();
+        TextDisplay textDisplay = new TextDisplay();
+        AverageDisplay averageDisplay = new AverageDisplay();
+
+        sensor.adaugare(numericDisplay);
+        sensor.adaugare(textDisplay);
+        sensor.adaugare(averageDisplay);
+
+        sensor.setTemperatura(15);
+        System.out.println(" ");
+
+        sensor.setTemperatura(25);
+        System.out.println(" ");
+
+        sensor.setTemperatura(20);
+        System.out.println(" ");
+
+
+        sensor.stergere(averageDisplay);
+        sensor.setTemperatura(18);
+    }
+}
+
+
